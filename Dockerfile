@@ -1,17 +1,17 @@
-# Dùng PHP có sẵn Apache (đỡ phải setup server)
 FROM php:8.2-apache
 
-# Cài Composer (nếu cần)
+# Cài Composer và module rewrite
 RUN apt-get update && apt-get install -y unzip git && \
     curl -sS https://getcomposer.org/installer | php && \
-    mv composer.phar /usr/local/bin/composer
+    mv composer.phar /usr/local/bin/composer && \
+    a2enmod rewrite
 
-# Copy toàn bộ mã nguồn vào container
+# Copy mã nguồn
 COPY . /var/www/html/
 
-# Cài các thư viện PHP cần thiết
+# Cài thư viện PHP (JWT, PDO,...)
 WORKDIR /var/www/html/
 RUN composer install
 
-# Mở port 80
+# Mở port
 EXPOSE 80
