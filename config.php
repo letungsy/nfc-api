@@ -9,7 +9,7 @@ define('DB_HOST', 'dpg-d3qsnbogjchc73bjmklg-a');   // Thay bằng host thực t�
 define('DB_PORT', '5432');
 define('DB_NAME', 'nfc123');
 define('DB_USER', 'nfc123_user');
-define('DB_PASS', 'nfc123_user');
+define('DB_PASS', 'gaNOZVovDbMPyclilYBSIQmoLL1Fr0IW');
 
 // ==========================
 // 🔐 JWT Secret
