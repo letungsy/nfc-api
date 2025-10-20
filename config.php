@@ -1,26 +1,33 @@
 <?php
-// config.php - Phiên bản cho InfinityFree
+// config.php — Dành cho Render PostgreSQL
 
-// Database InfinityFree format: epiz_xxxxx_dbname
-define('DB_HOST', 'sql312.infinityfree.com'); // Lấy từ control panel
-define('DB_USER', 'if0_38326285');              // Username từ control panel
-define('DB_PASS', 'Taypro123');              // Password bạn đặt
-define('DB_NAME', 'if0_38326285_me');         // Database name
+// ==========================
+// 🔧 Thông tin Database Render
+// ==========================
+// Dán thông tin bạn lấy từ Render Dashboard → Database → Connect → External Database URL
+define('DB_HOST', 'dpg-d3qsnbogjchc73bjmklg-a');   // Thay bằng host thực tế
+define('DB_PORT', '5432');
+define('DB_NAME', 'nfc123');
+define('DB_USER', 'nfc123_user');
+define('DB_PASS', 'nfc123_user');
 
+// ==========================
+// 🔐 JWT Secret
+// ==========================
 define('JWT_SECRET', 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTc2MDkzMDY1OCwiaWF0IjoxNzYwOTMwNjU4fQ.FONsPwqIJOabHR6IIBBdAwc0ssl9cadH6MJEv1woZkM
 ');
-
-// Kết nối database
+// ==========================
+// 🧩 Hàm kết nối PostgreSQL
+// ==========================
 function getDBConnection() {
     try {
         $conn = new PDO(
-            "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+            "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME,
             DB_USER,
             DB_PASS,
             [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+                PDO::ATTR_EMULATE_PREPARES => false
             ]
         );
         return $conn;
@@ -28,13 +35,15 @@ function getDBConnection() {
         http_response_code(500);
         echo json_encode([
             'success' => false, 
-            'message' => 'Lỗi kết nối database'
+            'message' => 'Lỗi kết nối database: ' . $e->getMessage()
         ]);
         exit();
     }
 }
 
-// Hàm tạo JWT token
+// ==========================
+// 🔑 JWT - Tạo token
+// ==========================
 function createToken($userId, $username) {
     $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => 'HS256']));
     $payload = base64_encode(json_encode([
@@ -49,7 +58,9 @@ function createToken($userId, $username) {
     return "$header.$payload.$signature";
 }
 
-// Hàm xác thực token
+// ==========================
+// ✅ JWT - Xác thực token
+// ==========================
 function verifyToken($token) {
     if (empty($token)) return false;
     
@@ -71,15 +82,15 @@ function verifyToken($token) {
     return $payloadData;
 }
 
-// Hàm lấy token từ header - FIX cho InfinityFree
+// ==========================
+// 🧠 Lấy token từ Header
+// ==========================
 function getBearerToken() {
-    // InfinityFree đôi khi không có getallheaders()
     $headers = [];
     
     if (function_exists('getallheaders')) {
         $headers = getallheaders();
     } else {
-        // Fallback cho InfinityFree
         foreach ($_SERVER as $name => $value) {
             if (substr($name, 0, 5) == 'HTTP_') {
                 $headers[str_replace(' ', '-', 
@@ -98,7 +109,9 @@ function getBearerToken() {
     return null;
 }
 
-// Headers cho API
+// ==========================
+// 🌐 Headers API chung
+// ==========================
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
